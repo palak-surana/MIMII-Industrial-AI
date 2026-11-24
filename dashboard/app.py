@@ -1,8 +1,10 @@
 
+import os
 import sys
 import uuid
 import json
 import traceback
+
 from pathlib import Path
 from datetime import datetime
 
@@ -38,10 +40,23 @@ MODEL_PATH = (
     / "seed_1_uncertainty_budget_40pct.pt"
 )
 
-MEL_PATH = ROOT / "data" / "processed" / "mel.npz"
+MEL_PATH = (
+    ROOT
+    / "data"
+    / "processed"
+    / "mel.npz"
+)
 
-UPLOAD_FOLDER = ROOT / "dashboard" / "uploads"
-UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
+UPLOAD_FOLDER = (
+    ROOT
+    / "dashboard"
+    / "uploads"
+)
+
+UPLOAD_FOLDER.mkdir(
+    parents=True,
+    exist_ok=True
+)
 
 
 # =========================================================
@@ -54,9 +69,20 @@ app = Flask(
     static_folder="static"
 )
 
-app.secret_key = "mimii-industrial-fault-detection"
+app.secret_key = os.environ.get(
+    "SECRET_KEY",
+    "mimii-industrial-fault-detection-dev-key"
+)
 
-app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = (
+    25 * 1024 * 1024
+)
+
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
+
+if os.environ.get("RENDER"):
+    app.config["SESSION_COOKIE_SECURE"] = True
 
 
 # =========================================================
@@ -85,6 +111,8 @@ std = None
 
 mel_filterbank = None
 
+model_load_error = None
+
 
 # =========================================================
 # 4. LOAD CNN-LSTM MODEL
@@ -98,75 +126,151 @@ def load_project_model():
     global mean
     global std
     global mel_filterbank
+    global model_load_error
 
     try:
 
         from src.trainer import load_model
 
-        print("\nLoading CNN-LSTM model...")
+        print("\n======================================")
+        print("Loading MIMII CNN-LSTM Model")
+        print("======================================")
+
+        # Check model checkpoint
 
         if not MODEL_PATH.exists():
+
             raise FileNotFoundError(
                 f"Checkpoint not found: {MODEL_PATH}"
             )
 
+        # Check Mel filterbank
+
         if not MEL_PATH.exists():
+
             raise FileNotFoundError(
                 f"Mel filterbank not found: {MEL_PATH}"
             )
 
-        # Load trained model and checkpoint
-        model, checkpoint = load_model(
+        # Load trained model
+
+        loaded_model, loaded_checkpoint = load_model(
             str(MODEL_PATH),
             device=str(DEVICE)
         )
 
-        # Load saved decision threshold
-        extra = checkpoint.get("extra", {})
+        # Validate checkpoint
 
-        threshold = float(
+        extra = loaded_checkpoint.get(
+            "extra",
+            {}
+        )
+
+        if "threshold" not in extra:
+
+            raise KeyError(
+                "Decision threshold is missing from checkpoint."
+            )
+
+        loaded_threshold = float(
             extra["threshold"]
         )
 
-        # IMPORTANT:
-        # Mean and standard deviation are arrays,
-        # not single scalar values.
-
-        mean = np.asarray(
-            checkpoint["mean"],
+        loaded_mean = np.asarray(
+            loaded_checkpoint["mean"],
             dtype=np.float32
         )
 
-        std = np.asarray(
-            checkpoint["std"],
+        loaded_std = np.asarray(
+            loaded_checkpoint["std"],
             dtype=np.float32
         )
 
-        # Avoid division by zero
-        std = np.maximum(std, 1e-8)
+        if not np.isfinite(loaded_mean).all():
+
+            raise ValueError(
+                "Checkpoint mean contains invalid values."
+            )
+
+        if not np.isfinite(loaded_std).all():
+
+            raise ValueError(
+                "Checkpoint standard deviation contains invalid values."
+            )
+
+        if not 0 <= loaded_threshold <= 1:
+
+            raise ValueError(
+                "Invalid decision threshold in checkpoint."
+            )
+
+        loaded_std = np.maximum(
+            loaded_std,
+            1e-8
+        )
 
         # Load Mel filterbank
+
         with np.load(MEL_PATH) as mel_data:
 
-            mel_filterbank = mel_data["fb"].copy()
+            if "fb" not in mel_data:
 
-        model.eval()
+                raise KeyError(
+                    "The Mel file does not contain the 'fb' array."
+                )
 
-        print("\nCNN-LSTM model loaded successfully.")
+            loaded_filterbank = mel_data["fb"].copy()
+
+        if not np.isfinite(loaded_filterbank).all():
+
+            raise ValueError(
+                "Mel filterbank contains invalid values."
+            )
+
+        # Set model to evaluation mode
+
+        loaded_model.eval()
+
+        # Update global variables only after successful loading
+
+        model = loaded_model
+        checkpoint = loaded_checkpoint
+
+        threshold = loaded_threshold
+        mean = loaded_mean
+        std = loaded_std
+
+        mel_filterbank = loaded_filterbank
+
+        model_load_error = None
+
+        print("\nCNN-LSTM MODEL LOADED SUCCESSFULLY")
         print("Device:", DEVICE)
-        print("Decision threshold:", threshold)
+        print("Threshold:", threshold)
         print("Mean shape:", mean.shape)
         print("Std shape:", std.shape)
+        print("Mel filterbank shape:", mel_filterbank.shape)
 
         return True
 
-    except Exception:
+    except Exception as error:
 
-        print("\nMODEL LOADING ERROR:")
+        print("\n======================================")
+        print("MODEL LOADING ERROR")
+        print("======================================")
+
         traceback.print_exc()
 
         model = None
         checkpoint = None
+
+        threshold = None
+        mean = None
+        std = None
+
+        mel_filterbank = None
+
+        model_load_error = str(error)
 
         return False
 
@@ -185,18 +289,25 @@ def preprocess_audio(audio):
     )
 
     # Convert stereo into mono
+
     if audio.ndim == 2:
+
         audio = audio[:, 0]
 
     if audio.size == 0:
-        raise ValueError("Uploaded audio is empty.")
+
+        raise ValueError(
+            "Uploaded audio is empty."
+        )
 
     if not np.isfinite(audio).all():
+
         raise ValueError(
             "Audio contains invalid numerical values."
         )
 
     # Apply bandpass filter
+
     filtered_audio = bandpass(
         audio,
         SAMPLE_RATE,
@@ -205,6 +316,7 @@ def preprocess_audio(audio):
     )
 
     # Generate Log-Mel spectrogram
+
     mel = log_mel(
         filtered_audio,
         N_FFT,
@@ -218,17 +330,27 @@ def preprocess_audio(audio):
     )
 
     if mel.ndim != 2:
+
         raise ValueError(
             f"Unexpected Log-Mel shape: {mel.shape}"
         )
 
     # Expected format: (64, time_frames)
+
     if mel.shape[0] != 64 and mel.shape[1] == 64:
+
         mel = mel.T
 
     if mel.shape[0] != 64:
+
         raise ValueError(
             f"Expected 64 Mel bins, received {mel.shape}"
+        )
+
+    if not np.isfinite(mel).all():
+
+        raise ValueError(
+            "Generated Mel spectrogram contains invalid values."
         )
 
     return mel
@@ -246,7 +368,9 @@ def create_audio_windows(mel):
 
     step_frames = max(
         1,
-        int(frames_per_window * (1 - OVERLAP))
+        int(
+            frames_per_window * (1 - OVERLAP)
+        )
     )
 
     windows = []
@@ -264,6 +388,7 @@ def create_audio_windows(mel):
         )
 
     if not windows:
+
         raise ValueError(
             "Audio must be at least 1 second long."
         )
@@ -275,38 +400,85 @@ def create_audio_windows(mel):
 
 
 # =========================================================
-# 7. CNN-LSTM BATCH PREDICTION
+# 7. NORMALIZATION
 # =========================================================
 
-def predict_windows(windows):
+def normalize_windows(X):
 
-    if model is None:
-        raise RuntimeError(
-            "CNN-LSTM model is not loaded."
-        )
-
-    # Convert windows into PyTorch tensor
-    X = torch.tensor(
-        windows,
-        dtype=torch.float32,
-        device=DEVICE
+    mean_array = np.asarray(
+        mean,
+        dtype=np.float32
     )
 
-    # Convert saved normalization values into tensors
+    std_array = np.asarray(
+        std,
+        dtype=np.float32
+    )
+
+    # Support scalar, per-bin and per-bin/per-frame statistics.
+
+    if mean_array.ndim == 1 and mean_array.size == X.shape[1]:
+
+        mean_array = mean_array.reshape(1, -1, 1)
+
+    elif mean_array.ndim == 2:
+
+        mean_array = mean_array.reshape(
+            1,
+            mean_array.shape[0],
+            mean_array.shape[1]
+        )
+
+    if std_array.ndim == 1 and std_array.size == X.shape[1]:
+
+        std_array = std_array.reshape(1, -1, 1)
+
+    elif std_array.ndim == 2:
+
+        std_array = std_array.reshape(
+            1,
+            std_array.shape[0],
+            std_array.shape[1]
+        )
+
     mean_tensor = torch.as_tensor(
-        mean,
+        mean_array,
         dtype=torch.float32,
         device=DEVICE
     )
 
     std_tensor = torch.as_tensor(
-        std,
+        std_array,
+        dtype=torch.float32,
+        device=DEVICE
+    )
+
+    return (X - mean_tensor) / std_tensor
+
+
+# =========================================================
+# 8. CNN-LSTM BATCH PREDICTION
+# =========================================================
+
+def predict_windows(windows):
+
+    if model is None:
+
+        raise RuntimeError(
+            "CNN-LSTM model is not loaded."
+        )
+
+    # Convert windows into PyTorch tensor
+
+    X = torch.as_tensor(
+        windows,
         dtype=torch.float32,
         device=DEVICE
     )
 
     # Normalize using checkpoint statistics
-    X = (X - mean_tensor) / std_tensor
+
+    X = normalize_windows(X)
 
     model.eval()
 
@@ -318,6 +490,12 @@ def predict_windows(windows):
             logits
         ).cpu().numpy().reshape(-1)
 
+    if not np.isfinite(probabilities).all():
+
+        raise ValueError(
+            "Model generated invalid prediction probabilities."
+        )
+
     predictions = (
         probabilities >= threshold
     ).astype(int)
@@ -326,20 +504,27 @@ def predict_windows(windows):
 
 
 # =========================================================
-# 8. COMPLETE AUDIO ANALYSIS
+# 9. COMPLETE AUDIO ANALYSIS
 # =========================================================
 
 def analyze_audio_file(file_path):
 
     if model is None:
+
         raise RuntimeError(
             "CNN-LSTM model is unavailable."
         )
 
-    sample_rate, audio = wavfile.read(file_path)
+    # Read WAV file
+
+    sample_rate, audio = wavfile.read(
+        file_path
+    )
 
     # Validate sample rate
+
     if sample_rate != SAMPLE_RATE:
+
         raise ValueError(
             f"Expected 16000 Hz audio. "
             f"Received {sample_rate} Hz. "
@@ -347,33 +532,53 @@ def analyze_audio_file(file_path):
         )
 
     if audio.size == 0:
-        raise ValueError("Uploaded audio is empty.")
+
+        raise ValueError(
+            "Uploaded audio is empty."
+        )
 
     # Normalize integer WAV audio
+
     if np.issubdtype(audio.dtype, np.integer):
 
-        max_value = (
-            np.iinfo(audio.dtype).max + 1
-        )
+        if np.issubdtype(audio.dtype, np.unsignedinteger):
 
-        audio = (
-            audio.astype(np.float32) / max_value
-        )
+            audio = (
+                audio.astype(np.float32)
+                - 128.0
+            ) / 128.0
+
+        else:
+
+            max_value = (
+                np.iinfo(audio.dtype).max + 1
+            )
+
+            audio = (
+                audio.astype(np.float32)
+                / max_value
+            )
 
     else:
 
-        audio = audio.astype(np.float32)
+        audio = audio.astype(
+            np.float32
+        )
 
     # Convert stereo into mono
+
     if audio.ndim == 2:
+
         audio = audio[:, 0]
 
     if not np.isfinite(audio).all():
+
         raise ValueError(
             "Audio contains invalid numerical values."
         )
 
     if len(audio) < SAMPLE_RATE:
+
         raise ValueError(
             "Audio must be at least 1 second long."
         )
@@ -381,15 +586,25 @@ def analyze_audio_file(file_path):
     duration = len(audio) / SAMPLE_RATE
 
     # Preprocessing
-    mel = preprocess_audio(audio)
+
+    mel = preprocess_audio(
+        audio
+    )
 
     # Create windows
-    windows = create_audio_windows(mel)
+
+    windows = create_audio_windows(
+        mel
+    )
 
     # Model prediction
-    predictions, probabilities = predict_windows(windows)
+
+    predictions, probabilities = predict_windows(
+        windows
+    )
 
     # Window statistics
+
     total_windows = len(predictions)
 
     healthy_count = int(
@@ -409,6 +624,7 @@ def analyze_audio_file(file_path):
     )
 
     # Overall machine condition
+
     overall_prediction = (
         "FAULTY"
         if faulty_count > healthy_count
@@ -416,6 +632,7 @@ def analyze_audio_file(file_path):
     )
 
     # Waveform display
+
     waveform_step = max(
         1,
         len(audio) // 1500
@@ -424,6 +641,7 @@ def analyze_audio_file(file_path):
     waveform = audio[::waveform_step]
 
     # Spectrogram display
+
     display_mel = mel[
         :,
         ::max(1, mel.shape[1] // 180)
@@ -458,11 +676,15 @@ def analyze_audio_file(file_path):
         )
 
     # Final result
+
     return {
 
         "prediction": overall_prediction,
 
-        "duration": round(duration, 2),
+        "duration": round(
+            duration,
+            2
+        ),
 
         "sample_rate": int(sample_rate),
 
@@ -504,7 +726,7 @@ def analyze_audio_file(file_path):
 
 
 # =========================================================
-# 9. DASHBOARD HOME
+# 10. DASHBOARD HOME
 # =========================================================
 
 @app.route("/")
@@ -518,24 +740,36 @@ def index():
 
 
 # =========================================================
-# 10. AUDIO ANALYSIS API
+# 11. AUDIO ANALYSIS API
 # =========================================================
 
-@app.route("/api/analyze", methods=["POST"])
+@app.route(
+    "/api/analyze",
+    methods=["POST"]
+)
 def analyze():
 
     if model is None:
 
         return jsonify({
+
             "success": False,
-            "error": "CNN-LSTM model is not loaded."
+
+            "error": (
+                "CNN-LSTM model is not loaded. "
+                "Please check the deployment logs."
+            )
+
         }), 503
 
     if "audio" not in request.files:
 
         return jsonify({
+
             "success": False,
+
             "error": "Please select an audio file."
+
         }), 400
 
     uploaded_file = request.files["audio"]
@@ -543,15 +777,21 @@ def analyze():
     if uploaded_file.filename == "":
 
         return jsonify({
+
             "success": False,
+
             "error": "No audio file selected."
+
         }), 400
 
     if not uploaded_file.filename.lower().endswith(".wav"):
 
         return jsonify({
+
             "success": False,
+
             "error": "Only WAV files are supported."
+
         }), 400
 
     temporary_path = (
@@ -562,9 +802,13 @@ def analyze():
     try:
 
         # Save uploaded audio
-        uploaded_file.save(temporary_path)
+
+        uploaded_file.save(
+            temporary_path
+        )
 
         # Run analysis
+
         result = analyze_audio_file(
             temporary_path
         )
@@ -574,36 +818,40 @@ def analyze():
         result["analysis_id"] = analysis_id
 
         # Save history
+
         history = session.get(
             "history",
             []
         )
 
-        history.insert(0, {
+        history.insert(
+            0,
+            {
 
-            "id": analysis_id,
+                "id": analysis_id,
 
-            "filename": uploaded_file.filename,
+                "filename": uploaded_file.filename,
 
-            "prediction": result["prediction"],
+                "prediction": result["prediction"],
 
-            "duration": result["duration"],
+                "duration": result["duration"],
 
-            "analysis_time": result["analysis_time"],
+                "analysis_time": result["analysis_time"],
 
-            "average_probability": result["average_probability"],
+                "average_probability": result["average_probability"],
 
-            "maximum_probability": result["maximum_probability"],
+                "maximum_probability": result["maximum_probability"],
 
-            "total_windows": result["total_windows"],
+                "total_windows": result["total_windows"],
 
-            "healthy_windows": result["healthy_windows"],
+                "healthy_windows": result["healthy_windows"],
 
-            "faulty_windows": result["faulty_windows"],
+                "faulty_windows": result["faulty_windows"],
 
-            "threshold": result["threshold"]
+                "threshold": result["threshold"]
 
-        })
+            }
+        )
 
         session["history"] = history[:20]
 
@@ -620,6 +868,7 @@ def analyze():
     except Exception as error:
 
         print("\nAUDIO ANALYSIS ERROR:")
+
         traceback.print_exc()
 
         return jsonify({
@@ -633,11 +882,12 @@ def analyze():
     finally:
 
         if temporary_path.exists():
+
             temporary_path.unlink()
 
 
 # =========================================================
-# 11. ANALYSIS HISTORY API
+# 12. ANALYSIS HISTORY API
 # =========================================================
 
 @app.route("/api/history")
@@ -656,7 +906,7 @@ def get_history():
 
 
 # =========================================================
-# 12. MODEL INFORMATION API
+# 13. MODEL INFORMATION API
 # =========================================================
 
 @app.route("/api/model-info")
@@ -682,16 +932,26 @@ def model_info():
 
         "model_loaded": model is not None,
 
+        "model_status": (
+            "ONLINE"
+            if model is not None
+            else "OFFLINE"
+        ),
+
+        "model_error": model_load_error,
+
         "checkpoint": MODEL_PATH.name
 
     })
 
 
 # =========================================================
-# 13. DOWNLOAD ANALYSIS REPORT
+# 14. DOWNLOAD ANALYSIS REPORT
 # =========================================================
 
-@app.route("/api/report/<analysis_id>")
+@app.route(
+    "/api/report/<analysis_id>"
+)
 def download_report(analysis_id):
 
     history = session.get(
@@ -701,7 +961,8 @@ def download_report(analysis_id):
 
     matching = next(
         (
-            item for item in history
+            item
+            for item in history
             if item["id"] == analysis_id
         ),
         None
@@ -746,7 +1007,7 @@ def download_report(analysis_id):
 
 
 # =========================================================
-# 14. ERROR HANDLERS
+# 15. ERROR HANDLERS
 # =========================================================
 
 @app.errorhandler(413)
@@ -756,13 +1017,45 @@ def file_too_large(error):
 
         "success": False,
 
-        "error": "File is too large. Maximum size is 25 MB."
+        "error": (
+            "File is too large. "
+            "Maximum size is 25 MB."
+        )
 
     }), 413
 
 
 # =========================================================
-# 15. START FLASK APPLICATION
+# 16. LOAD MODEL WHEN APPLICATION STARTS
+# =========================================================
+
+# IMPORTANT:
+# This runs when Gunicorn imports dashboard.app.
+# It also runs when Flask is started directly.
+
+print("\n======================================")
+print("MIMII INDUSTRIAL FAULT DETECTION")
+print("Initializing application...")
+print("======================================")
+
+model_loaded = load_project_model()
+
+if model_loaded:
+
+    print("\nMODEL STATUS: ONLINE")
+
+else:
+
+    print("\nMODEL STATUS: OFFLINE")
+
+    print(
+        "Model error:",
+        model_load_error
+    )
+
+
+# =========================================================
+# 17. START LOCAL FLASK APPLICATION
 # =========================================================
 
 if __name__ == "__main__":
@@ -770,17 +1063,6 @@ if __name__ == "__main__":
     print(
         "\nStarting MIMII Industrial Fault Detection Dashboard..."
     )
-
-    model_loaded = load_project_model()
-
-    if model_loaded:
-
-        print("\nMODEL STATUS: ONLINE")
-
-    else:
-
-        print("\nMODEL STATUS: OFFLINE")
-        print("Check the model loading error above.")
 
     print(
         "\nDashboard URL: http://127.0.0.1:5000"
