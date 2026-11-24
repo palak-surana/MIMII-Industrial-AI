@@ -1,0 +1,27 @@
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+
+# IDE and OS
+.idea/
+.vscode/
+.DS_Store
+
+# Dataset and generated features
+data/
+*.wav
+*.zip
+*.npy
+*.npz
+
+# Dashboard temporary uploads
+dashboard/uploads/
+
+# Logs and temporary files
+*.log
+*.tmp

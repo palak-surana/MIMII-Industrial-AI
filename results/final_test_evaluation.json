@@ -1,0 +1,127 @@
+{
+  "evaluation": "final held-out machine evaluation",
+  "test_machine_ids": [
+    "id_06"
+  ],
+  "maximum_annotation_fraction": 0.5,
+  "strategies": {
+    "random": [
+      {
+        "seed": 0,
+        "labelled_fraction": 0.5000116184500988,
+        "threshold": 0.315344899892807,
+        "test_metrics": {
+          "accuracy": 0.5538340579039867,
+          "precision": 0.13626498065490233,
+          "recall": 0.7450980392156863,
+          "sensitivity": 0.7450980392156863,
+          "specificity": 0.5350030481609429,
+          "f1": 0.2303948942959713,
+          "auroc": 0.7272585776842743,
+          "tp": 1444,
+          "fp": 9153,
+          "tn": 10531,
+          "fn": 494,
+          "false_alarms_per_hour": 3487.477138792928
+        }
+      },
+      {
+        "seed": 1,
+        "labelled_fraction": 0.5000116184500988,
+        "threshold": 0.016273170709609985,
+        "test_metrics": {
+          "accuracy": 0.17833687910461568,
+          "precision": 0.09721091205211727,
+          "recall": 0.9855521155830753,
+          "sensitivity": 0.9855521155830753,
+          "specificity": 0.09886201991465149,
+          "f1": 0.1769665523950709,
+          "auroc": 0.7280380502129729,
+          "tp": 1910,
+          "fp": 17738,
+          "tn": 1946,
+          "fn": 28,
+          "false_alarms_per_hour": 6758.534850640113
+        }
+      },
+      {
+        "seed": 2,
+        "labelled_fraction": 0.5000116184500988,
+        "threshold": 0.07007086277008057,
+        "test_metrics": {
+          "accuracy": 0.24276200166497086,
+          "precision": 0.0971702852039962,
+          "recall": 0.8983488132094943,
+          "sensitivity": 0.8983488132094943,
+          "specificity": 0.17821580979475715,
+          "f1": 0.17537144296147067,
+          "auroc": 0.6944028472360719,
+          "tp": 1741,
+          "fp": 16176,
+          "tn": 3508,
+          "fn": 197,
+          "false_alarms_per_hour": 6163.381426539321
+        }
+      }
+    ],
+    "uncertainty": [
+      {
+        "seed": 0,
+        "labelled_fraction": 0.5000116184500988,
+        "threshold": 0.1200065016746521,
+        "test_metrics": {
+          "accuracy": 0.3592637128850245,
+          "precision": 0.10848994611644106,
+          "recall": 0.8519091847265222,
+          "sensitivity": 0.8519091847265222,
+          "specificity": 0.3107600081284292,
+          "f1": 0.1924691070179529,
+          "auroc": 0.6722897214586966,
+          "tp": 1651,
+          "fp": 13567,
+          "tn": 6117,
+          "fn": 287,
+          "false_alarms_per_hour": 5169.299939036781
+        }
+      },
+      {
+        "seed": 1,
+        "labelled_fraction": 0.5000116184500988,
+        "threshold": 0.05334419757127762,
+        "test_metrics": {
+          "accuracy": 0.3282305059661456,
+          "precision": 0.10185360916049851,
+          "recall": 0.8307533539731682,
+          "sensitivity": 0.8307533539731682,
+          "specificity": 0.27875431822800245,
+          "f1": 0.1814595660749507,
+          "auroc": 0.6519430898810075,
+          "tp": 1610,
+          "fp": 14197,
+          "tn": 5487,
+          "fn": 328,
+          "false_alarms_per_hour": 5409.342613289981
+        }
+      },
+      {
+        "seed": 2,
+        "labelled_fraction": 0.5000116184500988,
+        "threshold": 0.07592779397964478,
+        "test_metrics": {
+          "accuracy": 0.31426325039311814,
+          "precision": 0.10783180186210674,
+          "recall": 0.9143446852425181,
+          "sensitivity": 0.9143446852425181,
+          "specificity": 0.2551818736029262,
+          "f1": 0.19291274291002122,
+          "auroc": 0.6800294236134223,
+          "tp": 1772,
+          "fp": 14661,
+          "tn": 5023,
+          "fn": 166,
+          "false_alarms_per_hour": 5586.135947978053
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "primary_metric": "validation_f1",
+  "target_f1": 0.8,
+  "significance_paired_ttest": {
+    "10%": {
+      "mean_validation_f1_gain": 0.0,
+      "paired_ttest_p_value": NaN,
+      "n_seeds": 3
+    },
+    "20%": {
+      "mean_validation_f1_gain": -0.004668758237918162,
+      "paired_ttest_p_value": 0.5749326055269779,
+      "n_seeds": 3
+    },
+    "30%": {
+      "mean_validation_f1_gain": -0.006676990819868056,
+      "paired_ttest_p_value": 0.8537070351693952,
+      "n_seeds": 3
+    },
+    "40%": {
+      "mean_validation_f1_gain": -0.02841948836904735,
+      "paired_ttest_p_value": 0.6268922817097506,
+      "n_seeds": 3
+    },
+    "50%": {
+      "mean_validation_f1_gain": -0.05047185113648076,
+      "paired_ttest_p_value": 0.34183746719674213,
+      "n_seeds": 3
+    }
+  },
+  "labels_to_target_validation": {
+    "random_pct": null,
+    "active_pct": null,
+    "annotation_saving_pct": NaN
+  },
+  "sustained_validation_f1_target": {
+    "metric": "val_f1",
+    "target": 0.8,
+    "random_pct": null,
+    "active_pct": null,
+    "valid_bootstraps": 0,
+    "B": 2000
+  }
+}

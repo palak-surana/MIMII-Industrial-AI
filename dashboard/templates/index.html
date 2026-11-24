@@ -1,0 +1,898 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f7fb">
+
+    <title>MIMII AI | Industrial Intelligence</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+
+        <div class="brand">
+            <div class="brand-logo">M</div>
+            <div>
+                <h2>MIMII AI</h2>
+                <small>Industrial Intelligence</small>
+            </div>
+        </div>
+
+        <div class="side-label">WORKSPACE</div>
+
+        <nav class="sidebar-navigation" aria-label="Main navigation">
+
+            <button class="nav-item active" data-page="overview">
+                <span class="nav-icon">▦</span>
+                <span>Overview</span>
+            </button>
+
+            <button class="nav-item" data-page="audio">
+                <span class="nav-icon">◉</span>
+                <span>Audio Analysis</span>
+            </button>
+
+            <button class="nav-item" data-page="faults">
+                <span class="nav-icon">⌁</span>
+                <span>Fault Monitoring</span>
+            </button>
+
+            <div class="side-label">SYSTEM</div>
+
+            <button class="nav-item" data-page="model">
+                <span class="nav-icon">▤</span>
+                <span>CNN-LSTM Model</span>
+            </button>
+
+            <button class="nav-item" data-page="about">
+                <span class="nav-icon">ⓘ</span>
+                <span>About Project</span>
+            </button>
+
+        </nav>
+
+        <div class="sidebar-status">
+            <b>Model Status</b>
+            <p>
+                <span class="green-dot"></span>
+                CNN-LSTM {{ 'loaded' if model_ready else 'not loaded' }}
+            </p>
+            <small>Local inference environment</small>
+        </div>
+
+        <div class="sidebar-footer">
+            <span class="brand-logo-small">M</span>
+            <span>MIMII AI Platform</span>
+        </div>
+
+    </aside>
+
+
+    <!-- MAIN AREA -->
+    <main class="main-area">
+
+        <!-- TOPBAR -->
+        <header class="topbar">
+
+            <div class="topbar-left">
+                <span class="topbar-eyebrow">MIMII AI PLATFORM</span>
+                <b>Industrial Monitoring</b>
+                <small>Machine audio intelligence platform</small>
+            </div>
+
+            <div class="topbar-actions">
+
+                <div class="ready-status">
+                    <span class="green-dot"></span>
+                    {{ 'MODEL READY' if model_ready else 'MODEL OFFLINE' }}
+                </div>
+
+                <button
+                    id="theme-toggle"
+                    class="theme-toggle"
+                    type="button"
+                    aria-label="Switch to dark mode"
+                    aria-pressed="false">
+                    🌙 Dark Mode
+                </button>
+
+            </div>
+
+        </header>
+
+
+        <div class="content">
+
+            <!-- ==========================================
+                 OVERVIEW
+            =========================================== -->
+
+            <section class="page active" id="page-overview">
+
+                <div class="page-heading">
+                    <div>
+                        <span class="eyebrow">
+                            AI POWERED PREDICTIVE MAINTENANCE
+                        </span>
+
+                        <h1>Machine Health Dashboard</h1>
+
+                        <p>
+                            Monitor industrial machine sounds and identify
+                            abnormal operating conditions using CNN-LSTM.
+                        </p>
+                    </div>
+
+                    <span class="tag">
+                        CNN-LSTM MODEL · MIMII DATASET
+                    </span>
+                </div>
+
+
+                <!-- KPI CARDS -->
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <span class="stat-icon">◈</span>
+                        <span>Model Status</span>
+
+                        <h2 class="stat-green">
+                            {{ 'Online' if model_ready else 'Offline' }}
+                        </h2>
+
+                        <small>Loaded on local server</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-icon">▤</span>
+                        <span>Total Analyses</span>
+
+                        <h2 id="overview-count">0</h2>
+
+                        <small>Current server session</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-icon">◎</span>
+                        <span>Decision Threshold</span>
+
+                        <h2 id="overview-threshold">
+                            {{ '%.2f'|format(threshold * 100) if threshold is not none else '—' }}%
+                        </h2>
+
+                        <small>Saved validation threshold</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span class="stat-icon">⌁</span>
+                        <span>Latest Prediction</span>
+
+                        <h2 id="overview-latest">No data</h2>
+
+                        <small>Latest uploaded recording</small>
+                    </div>
+
+                </div>
+
+
+                <!-- WELCOME PANEL -->
+                <div class="panel welcome-panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <span class="eyebrow">GET STARTED</span>
+                            <h3>Welcome to MIMII Industrial AI</h3>
+
+                            <p>
+                                Start by uploading a machine audio recording
+                                to evaluate its operating condition.
+                            </p>
+                        </div>
+
+                        <button class="primary-btn" data-go="audio">
+                            Start Audio Analysis →
+                        </button>
+                    </div>
+
+
+                    <div class="info-grid">
+
+                        <div class="info-box">
+                            <span class="step-number">01</span>
+                            <b>Upload Recording</b>
+                            <p>
+                                Choose a WAV recording from your computer.
+                            </p>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="step-number">02</span>
+                            <b>Audio Preprocessing</b>
+                            <p>
+                                Generate Log-Mel spectrogram audio windows.
+                            </p>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="step-number">03</span>
+                            <b>Model Prediction</b>
+                            <p>
+                                CNN-LSTM predicts abnormal machine behaviour.
+                            </p>
+                        </div>
+
+                        <div class="info-box">
+                            <span class="step-number">04</span>
+                            <b>Review Results</b>
+                            <p>
+                                View probabilities and analysis reports.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RECENT ANALYSES -->
+                <div class="panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Recent Analyses</h3>
+                            <p>Your latest uploaded recordings.</p>
+                        </div>
+
+                        <button class="secondary-btn" data-go="faults">
+                            View All History →
+                        </button>
+                    </div>
+
+                    <div id="overview-history" class="empty-state">
+                        No audio has been analyzed yet.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==========================================
+                 AUDIO ANALYSIS
+            =========================================== -->
+
+            <section class="page" id="page-audio">
+
+                <div class="page-heading">
+                    <div>
+                        <span class="eyebrow">MACHINE SOUND INTELLIGENCE</span>
+                        <h1>Audio Analysis</h1>
+
+                        <p>
+                            Upload a machine recording and run the trained
+                            CNN-LSTM fault detection model.
+                        </p>
+                    </div>
+
+                    <span class="tag">WAV · 16 kHz</span>
+                </div>
+
+
+                <!-- UPLOAD PANEL -->
+                <div class="panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Upload Machine Recording</h3>
+                            <p>
+                                Select or drag a WAV audio file below.
+                            </p>
+                        </div>
+
+                        <span class="tag">MAX 25 MB</span>
+                    </div>
+
+
+                    <div class="upload-layout">
+
+                        <div>
+
+                            <label
+                                class="drop-zone"
+                                id="drop-zone"
+                                for="audio-file">
+
+                                <div class="music-icon">♫</div>
+
+                                <h3>
+                                    Drag and drop your audio file here
+                                </h3>
+
+                                <p>
+                                    Or browse a WAV file from your computer
+                                </p>
+
+                                <span class="browse-btn">
+                                    Browse Audio File
+                                </span>
+
+                                <span id="file-name" class="file-name">
+                                    No file selected
+                                </span>
+
+                            </label>
+
+
+                            <input
+                                type="file"
+                                id="audio-file"
+                                accept=".wav,audio/wav"
+                                hidden>
+
+
+                            <!-- AUDIO PREVIEW -->
+                            <div
+                                id="audio-preview-wrap"
+                                class="audio-preview"
+                                hidden>
+
+                                <b>Audio Preview</b>
+
+                                <audio
+                                    id="audio-preview"
+                                    controls>
+                                </audio>
+
+                            </div>
+
+
+                            <!-- ANALYZE BUTTON -->
+                            <button
+                                class="primary-btn analyze-btn"
+                                id="analyze-btn"
+                                {% if not model_ready %}disabled{% endif %}>
+
+                                ✦ Analyze Machine Audio
+                            </button>
+
+
+                            <div
+                                id="analysis-message"
+                                class="message"
+                                role="status"
+                                aria-live="polite"
+                                hidden>
+                            </div>
+
+                        </div>
+
+
+                        <!-- UPLOAD REQUIREMENTS -->
+                        <div class="requirements">
+
+                            <h4>UPLOAD REQUIREMENTS</h4>
+
+                            <div>
+                                <span>File format</span>
+                                <b>WAV</b>
+                            </div>
+
+                            <div>
+                                <span>Sample rate</span>
+                                <b>16 kHz</b>
+                            </div>
+
+                            <div>
+                                <span>Audio channel</span>
+                                <b>Mono / first channel</b>
+                            </div>
+
+                            <div>
+                                <span>Analysis model</span>
+                                <b>CNN-LSTM</b>
+                            </div>
+
+                            <div>
+                                <span>Minimum duration</span>
+                                <b>1 second</b>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ANALYSIS RESULTS -->
+                <div class="panel" id="analysis-result" hidden>
+
+                    <div class="panel-heading">
+                        <div>
+                            <span class="eyebrow">MODEL OUTPUT</span>
+                            <h3>Analysis Results</h3>
+
+                            <p>
+                                Prediction generated by your trained model.
+                            </p>
+                        </div>
+
+                        <span class="tag" id="result-file">
+                            Recording
+                        </span>
+                    </div>
+
+
+                    <!-- PREDICTION BANNER -->
+                    <div
+                        id="result-banner"
+                        class="result-banner">
+                    </div>
+
+
+                    <!-- RESULT STATISTICS -->
+                    <div class="stats-grid result-stats">
+
+                        <div class="stat-card">
+                            <span>Average Fault Probability</span>
+                            <h2 id="result-average">—</h2>
+                        </div>
+
+                        <div class="stat-card">
+                            <span>Maximum Fault Probability</span>
+                            <h2 id="result-maximum">—</h2>
+                        </div>
+
+                        <div class="stat-card">
+                            <span>Faulty Windows</span>
+                            <h2 id="result-faulty">—</h2>
+                        </div>
+
+                        <div class="stat-card">
+                            <span>Healthy Windows</span>
+                            <h2 id="result-healthy">—</h2>
+                        </div>
+
+                    </div>
+
+
+                    <!-- CHARTS -->
+                    <div class="chart-grid">
+
+                        <div class="chart-card">
+                            <h3>Window Probability</h3>
+                            <canvas id="probability-chart"></canvas>
+                        </div>
+
+                        <div class="chart-card">
+                            <h3>Window Classification</h3>
+                            <canvas id="distribution-chart"></canvas>
+                        </div>
+
+                    </div>
+
+
+                    <!-- RESULT DETAILS -->
+                    <div
+                        class="result-details"
+                        id="result-details">
+                    </div>
+
+
+                    <!-- REPORT DOWNLOAD -->
+                    <button
+                        class="secondary-btn"
+                        id="download-report">
+
+                        ↓ Download Analysis Report
+                    </button>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==========================================
+                 FAULT MONITORING
+            =========================================== -->
+
+            <section class="page" id="page-faults">
+
+                <div class="page-heading">
+                    <div>
+                        <span class="eyebrow">PREDICTIVE MAINTENANCE</span>
+                        <h1>Fault Monitoring</h1>
+
+                        <p>
+                            Review machine predictions and probability
+                            patterns from your uploaded recordings.
+                        </p>
+                    </div>
+
+                    <button
+                        class="secondary-btn"
+                        id="refresh-history">
+
+                        ↻ Refresh History
+                    </button>
+                </div>
+
+
+                <!-- HISTORY STATISTICS -->
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <span>Total Analyses</span>
+                        <h2 id="history-total">0</h2>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>Faulty Recordings</span>
+                        <h2 id="history-faulty">0</h2>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>Healthy Recordings</span>
+                        <h2 id="history-healthy">0</h2>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>Fault Detection Threshold</span>
+
+                        <h2>
+                            {{ '%.2f'|format(threshold * 100) if threshold is not none else '—' }}%
+                        </h2>
+                    </div>
+
+                </div>
+
+
+                <!-- HISTORY TABLE -->
+                <div class="panel">
+
+                    <div class="panel-heading">
+                        <div>
+                            <h3>Analysis History</h3>
+
+                            <p class="muted">
+                                Records are stored for the current Flask
+                                server session.
+                            </p>
+                        </div>
+                    </div>
+
+
+                    <div class="table-wrap">
+
+                        <table>
+
+                            <thead>
+                                <tr>
+                                    <th>Recording</th>
+                                    <th>Date</th>
+                                    <th>Prediction</th>
+                                    <th>Fault Probability</th>
+                                    <th>Windows</th>
+                                    <th>Report</th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="history-table">
+
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        No records available.
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==========================================
+                 CNN-LSTM MODEL
+            =========================================== -->
+
+            <section class="page" id="page-model">
+
+                <div class="page-heading">
+                    <div>
+                        <span class="eyebrow">MODEL INFORMATION</span>
+                        <h1>CNN-LSTM Model</h1>
+
+                        <p>
+                            Architecture and preprocessing configuration
+                            used by the deployed inference model.
+                        </p>
+                    </div>
+
+                    <span class="tag">TRAINED CHECKPOINT</span>
+                </div>
+
+
+                <!-- MODEL STATISTICS -->
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <span>Architecture</span>
+                        <h2>CNN-LSTM</h2>
+                        <small>Convolution + LSTM</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>Dataset</span>
+                        <h2>MIMII</h2>
+                        <small>Industrial machine sounds</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>Runtime Device</span>
+                        <h2>CPU</h2>
+                        <small>Local inference</small>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>Model Status</span>
+
+                        <h2 class="stat-green">
+                            {{ 'Ready' if model_ready else 'Offline' }}
+                        </h2>
+
+                        <small>Checkpoint loading status</small>
+                    </div>
+
+                </div>
+
+
+                <!-- PREPROCESSING CONFIGURATION -->
+                <div class="panel">
+
+                    <h3>Audio Preprocessing Configuration</h3>
+
+                    <div class="config-grid">
+
+                        <div>
+                            <span>Sampling rate</span>
+                            <b>16,000 Hz</b>
+                        </div>
+
+                        <div>
+                            <span>FFT size</span>
+                            <b>1024</b>
+                        </div>
+
+                        <div>
+                            <span>Hop length</span>
+                            <b>512</b>
+                        </div>
+
+                        <div>
+                            <span>Mel bands</span>
+                            <b>64</b>
+                        </div>
+
+                        <div>
+                            <span>Window duration</span>
+                            <b>1 second</b>
+                        </div>
+
+                        <div>
+                            <span>Window overlap</span>
+                            <b>50%</b>
+                        </div>
+
+                        <div>
+                            <span>Bandpass filter</span>
+                            <b>50–7500 Hz</b>
+                        </div>
+
+                        <div>
+                            <span>Decision threshold</span>
+
+                            <b>
+                                {{ '%.5f'|format(threshold) if threshold is not none else '—' }}
+                            </b>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- MODEL WORKFLOW -->
+                <div class="panel">
+
+                    <h3>Model Prediction Workflow</h3>
+
+                    <div class="workflow">
+
+                        <div>
+                            01
+                            <b>WAV Input</b>
+                            <small>Audio recording</small>
+                        </div>
+
+                        <div>
+                            02
+                            <b>Preprocessing</b>
+                            <small>Filtering and Log-Mel</small>
+                        </div>
+
+                        <div>
+                            03
+                            <b>CNN Layers</b>
+                            <small>Feature extraction</small>
+                        </div>
+
+                        <div>
+                            04
+                            <b>LSTM Layer</b>
+                            <small>Sequence learning</small>
+                        </div>
+
+                        <div>
+                            05
+                            <b>Prediction</b>
+                            <small>Healthy / Faulty</small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <!-- ==========================================
+                 ABOUT PROJECT
+            =========================================== -->
+
+            <section class="page" id="page-about">
+
+                <div class="page-heading">
+                    <div>
+                        <span class="eyebrow">RESEARCH PROJECT</span>
+                        <h1>About MIMII Industrial AI</h1>
+
+                        <p>
+                            Annotation-efficient industrial machine fault
+                            detection using deep learning and an agentic
+                            active-learning framework.
+                        </p>
+                    </div>
+
+                    <span class="tag">ACADEMIC RESEARCH</span>
+                </div>
+
+
+                <!-- PROJECT OBJECTIVE -->
+                <div class="panel">
+
+                    <h3>Project Objective</h3>
+
+                    <p>
+                        To detect abnormal industrial machine sounds using
+                        a CNN-LSTM model and investigate how active learning
+                        can reduce the amount of labelled data required
+                        for model training.
+                    </p>
+
+                </div>
+
+
+                <!-- DATASET INFORMATION -->
+                <div class="panel">
+
+                    <h3>Dataset Information</h3>
+
+                    <p>
+                        The project uses the MIMII Sound Dataset, containing
+                        normal and anomalous industrial machine sounds.
+                    </p>
+
+                    <div class="config-grid">
+
+                        <div>
+                            <span>Machine categories</span>
+                            <b>Valve, Pump, Fan, Slide Rail</b>
+                        </div>
+
+                        <div>
+                            <span>Dataset classes</span>
+                            <b>Normal and Abnormal</b>
+                        </div>
+
+                        <div>
+                            <span>Audio format</span>
+                            <b>WAV</b>
+                        </div>
+
+                        <div>
+                            <span>Model</span>
+                            <b>CNN-LSTM</b>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- AGENTIC ACTIVE LEARNING -->
+                <div class="panel">
+
+                    <h3>Agentic Active Learning Workflow</h3>
+
+                    <div class="workflow">
+
+                        <div>
+                            01
+                            <b>Training Agent</b>
+                            <small>Trains CNN-LSTM</small>
+                        </div>
+
+                        <div>
+                            02
+                            <b>Selection Agent</b>
+                            <small>Selects uncertain samples</small>
+                        </div>
+
+                        <div>
+                            03
+                            <b>Annotation Agent</b>
+                            <small>Reveals selected labels</small>
+                        </div>
+
+                        <div>
+                            04
+                            <b>Evaluation Agent</b>
+                            <small>Checks validation F1</small>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </div>
+
+
+        <!-- FOOTER -->
+        <footer>
+            <span>
+                MIMII Industrial AI · Academic Research Project
+            </span>
+
+            <span>
+                CNN-LSTM | Agentic Active Learning | MIMII Sound Dataset
+            </span>
+        </footer>
+
+    </main>
+
+</div>
+
+
+<!-- JAVASCRIPT -->
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

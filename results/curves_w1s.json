@@ -1,0 +1,728 @@
+[
+  {
+    "strategy": "random",
+    "seed": 0,
+    "round": 0,
+    "n_labelled": 4304,
+    "frac_labelled": 0.10001161845009876,
+    "n_unlabelled": 38731,
+    "val_f1": 0.271588906409424,
+    "thr": 0.10722284018993378,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000196_f30",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000705_f210",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000181_f75",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 0,
+    "round": 1,
+    "n_labelled": 8608,
+    "frac_labelled": 0.20002323690019752,
+    "n_unlabelled": 34427,
+    "val_f1": 0.309972611567585,
+    "thr": 0.19091324508190155,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000650_f195",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000228_f75",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000629_f210",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 0,
+    "round": 2,
+    "n_labelled": 12912,
+    "frac_labelled": 0.3000348553502963,
+    "n_unlabelled": 30123,
+    "val_f1": 0.24361650875220814,
+    "thr": 0.04046107828617096,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000300_f180",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000290_f60",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000495_f105",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 0,
+    "round": 3,
+    "n_labelled": 17216,
+    "frac_labelled": 0.40004647380039504,
+    "n_unlabelled": 25819,
+    "val_f1": 0.36418578623391157,
+    "thr": 0.06294094771146774,
+    "target_f1": 0.8,
+    "decision": "Request 4302 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000715_f195",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000786_f150",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000542_f150",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 0,
+    "round": 4,
+    "n_labelled": 21518,
+    "frac_labelled": 0.5000116184500988,
+    "n_unlabelled": 21517,
+    "val_f1": 0.2514640027557699,
+    "thr": 0.315344899892807,
+    "target_f1": 0.8,
+    "decision": "STOP: annotation budget exhausted",
+    "selection_method": "Random selection"
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 0,
+    "round": 0,
+    "n_labelled": 4304,
+    "frac_labelled": 0.10001161845009876,
+    "n_unlabelled": 38731,
+    "val_f1": 0.271588906409424,
+    "thr": 0.10722284018993378,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000028_f0",
+        "uncertainty": 0.999999991733581
+      },
+      {
+        "segment": "PUMP_id_02_00000773_f75",
+        "uncertainty": 0.9999999709297398
+      },
+      {
+        "segment": "PUMP_id_00_00000665_f195",
+        "uncertainty": 0.9999999431478921
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 0,
+    "round": 1,
+    "n_labelled": 8608,
+    "frac_labelled": 0.20002323690019752,
+    "n_unlabelled": 34427,
+    "val_f1": 0.318854415274463,
+    "thr": 0.07567249983549118,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000936_f195",
+        "uncertainty": 0.9999999732466193
+      },
+      {
+        "segment": "PUMP_id_02_00000886_f180",
+        "uncertainty": 0.9999999505880913
+      },
+      {
+        "segment": "PUMP_id_02_00000896_f15",
+        "uncertainty": 0.999999815190309
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 0,
+    "round": 2,
+    "n_labelled": 12912,
+    "frac_labelled": 0.3000348553502963,
+    "n_unlabelled": 30123,
+    "val_f1": 0.22513055251112113,
+    "thr": 0.0703229084610939,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000842_f240",
+        "uncertainty": 0.9999999866544637
+      },
+      {
+        "segment": "PUMP_id_00_00000868_f15",
+        "uncertainty": 0.9999999431478921
+      },
+      {
+        "segment": "PUMP_id_02_00000821_f240",
+        "uncertainty": 0.9999999269766258
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 0,
+    "round": 3,
+    "n_labelled": 17216,
+    "frac_labelled": 0.40004647380039504,
+    "n_unlabelled": 25819,
+    "val_f1": 0.24133827955484005,
+    "thr": 0.09259042143821716,
+    "target_f1": 0.8,
+    "decision": "Request 4302 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000418_f240",
+        "uncertainty": 0.9999964295084209
+      },
+      {
+        "segment": "PUMP_id_02_00000525_f210",
+        "uncertainty": 0.9999962656268591
+      },
+      {
+        "segment": "PUMP_id_02_00000508_f45",
+        "uncertainty": 0.9999958823704541
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 0,
+    "round": 4,
+    "n_labelled": 21518,
+    "frac_labelled": 0.5000116184500988,
+    "n_unlabelled": 21517,
+    "val_f1": 0.26469298245614037,
+    "thr": 0.1200065016746521,
+    "target_f1": 0.8,
+    "decision": "STOP: annotation budget exhausted",
+    "selection_method": "Highest model uncertainty (entropy)"
+  },
+  {
+    "strategy": "random",
+    "seed": 1,
+    "round": 0,
+    "n_labelled": 4304,
+    "frac_labelled": 0.10001161845009876,
+    "n_unlabelled": 38731,
+    "val_f1": 0.37329321916223096,
+    "thr": 0.038102634251117706,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000242_f210",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000039_f240",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000209_f60",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 1,
+    "round": 1,
+    "n_labelled": 8608,
+    "frac_labelled": 0.20002323690019752,
+    "n_unlabelled": 34427,
+    "val_f1": 0.2803738317757009,
+    "thr": 0.09553754329681396,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000124_f150",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000047_f30",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000610_f225",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 1,
+    "round": 2,
+    "n_labelled": 12912,
+    "frac_labelled": 0.3000348553502963,
+    "n_unlabelled": 30123,
+    "val_f1": 0.3655564581640942,
+    "thr": 0.0912652313709259,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000254_f105",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000079_f225",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000687_f90",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 1,
+    "round": 3,
+    "n_labelled": 17216,
+    "frac_labelled": 0.40004647380039504,
+    "n_unlabelled": 25819,
+    "val_f1": 0.3018242122719735,
+    "thr": 0.08103498071432114,
+    "target_f1": 0.8,
+    "decision": "Request 4302 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000335_f165",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000765_f225",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000050_f150",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 1,
+    "round": 4,
+    "n_labelled": 21518,
+    "frac_labelled": 0.5000116184500988,
+    "n_unlabelled": 21517,
+    "val_f1": 0.3746891406465875,
+    "thr": 0.016273170709609985,
+    "target_f1": 0.8,
+    "decision": "STOP: annotation budget exhausted",
+    "selection_method": "Random selection"
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 1,
+    "round": 0,
+    "n_labelled": 4304,
+    "frac_labelled": 0.10001161845009876,
+    "n_unlabelled": 38731,
+    "val_f1": 0.37329321916223096,
+    "thr": 0.038102634251117706,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000820_f135",
+        "uncertainty": 0.9999997070303173
+      },
+      {
+        "segment": "PUMP_id_00_00000508_f255",
+        "uncertainty": 0.9999996602517441
+      },
+      {
+        "segment": "PUMP_id_00_00000701_f60",
+        "uncertainty": 0.9999995865252342
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 1,
+    "round": 1,
+    "n_labelled": 8608,
+    "frac_labelled": 0.20002323690019752,
+    "n_unlabelled": 34427,
+    "val_f1": 0.2656818668379362,
+    "thr": 0.1910562515258789,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000084_f270",
+        "uncertainty": 0.999999969902324
+      },
+      {
+        "segment": "PUMP_id_02_00000760_f45",
+        "uncertainty": 0.9999999532956787
+      },
+      {
+        "segment": "PUMP_id_02_00000903_f30",
+        "uncertainty": 0.9999999430271229
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 1,
+    "round": 2,
+    "n_labelled": 12912,
+    "frac_labelled": 0.3000348553502963,
+    "n_unlabelled": 30123,
+    "val_f1": 0.31044040652910376,
+    "thr": 0.3386923372745514,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000579_f165",
+        "uncertainty": 0.9999999985661361
+      },
+      {
+        "segment": "PUMP_id_00_00000743_f165",
+        "uncertainty": 0.9999999975787631
+      },
+      {
+        "segment": "PUMP_id_02_00000011_f60",
+        "uncertainty": 0.9999999316596457
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 1,
+    "round": 3,
+    "n_labelled": 17216,
+    "frac_labelled": 0.40004647380039504,
+    "n_unlabelled": 25819,
+    "val_f1": 0.29226847918436705,
+    "thr": 0.13859063386917114,
+    "target_f1": 0.8,
+    "decision": "Request 4302 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000127_f210",
+        "uncertainty": 0.9999994398701525
+      },
+      {
+        "segment": "PUMP_id_00_00000034_f240",
+        "uncertainty": 0.9999953039273393
+      },
+      {
+        "segment": "PUMP_id_00_00000100_f15",
+        "uncertainty": 0.9999885869896619
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 1,
+    "round": 4,
+    "n_labelled": 21518,
+    "frac_labelled": 0.5000116184500988,
+    "n_unlabelled": 21517,
+    "val_f1": 0.24813278008298756,
+    "thr": 0.05334419757127762,
+    "target_f1": 0.8,
+    "decision": "STOP: annotation budget exhausted",
+    "selection_method": "Highest model uncertainty (entropy)"
+  },
+  {
+    "strategy": "random",
+    "seed": 2,
+    "round": 0,
+    "n_labelled": 4304,
+    "frac_labelled": 0.10001161845009876,
+    "n_unlabelled": 38731,
+    "val_f1": 0.27594465141032465,
+    "thr": 0.36307042837142944,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000706_f180",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000720_f150",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000473_f105",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 2,
+    "round": 1,
+    "n_labelled": 8608,
+    "frac_labelled": 0.20002323690019752,
+    "n_unlabelled": 34427,
+    "val_f1": 0.313512112968001,
+    "thr": 0.19992250204086304,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000076_f15",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000005_f45",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000931_f270",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 2,
+    "round": 2,
+    "n_labelled": 12912,
+    "frac_labelled": 0.3000348553502963,
+    "n_unlabelled": 30123,
+    "val_f1": 0.2905486583900681,
+    "thr": 0.05991928651928902,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000002_f150",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000905_f0",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_00_00000137_f75",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 2,
+    "round": 3,
+    "n_labelled": 17216,
+    "frac_labelled": 0.40004647380039504,
+    "n_unlabelled": 25819,
+    "val_f1": 0.24383836822993124,
+    "thr": 0.03094758279621601,
+    "target_f1": 0.8,
+    "decision": "Request 4302 additional segment annotations",
+    "selection_method": "Random selection",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000570_f15",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000148_f45",
+        "uncertainty": null
+      },
+      {
+        "segment": "PUMP_id_02_00000525_f105",
+        "uncertainty": null
+      }
+    ]
+  },
+  {
+    "strategy": "random",
+    "seed": 2,
+    "round": 4,
+    "n_labelled": 21518,
+    "frac_labelled": 0.5000116184500988,
+    "n_unlabelled": 21517,
+    "val_f1": 0.2914018691588785,
+    "thr": 0.07007086277008057,
+    "target_f1": 0.8,
+    "decision": "STOP: annotation budget exhausted",
+    "selection_method": "Random selection"
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 2,
+    "round": 0,
+    "n_labelled": 4304,
+    "frac_labelled": 0.10001161845009876,
+    "n_unlabelled": 38731,
+    "val_f1": 0.27594465141032465,
+    "thr": 0.36307042837142944,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000033_f60",
+        "uncertainty": 0.9999999778034602
+      },
+      {
+        "segment": "PUMP_id_02_00000169_f135",
+        "uncertainty": 0.9999999426398004
+      },
+      {
+        "segment": "PUMP_id_02_00000856_f30",
+        "uncertainty": 0.9999999085391577
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 2,
+    "round": 1,
+    "n_labelled": 8608,
+    "frac_labelled": 0.20002323690019752,
+    "n_unlabelled": 34427,
+    "val_f1": 0.3053159994851332,
+    "thr": 0.20277172327041626,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000615_f30",
+        "uncertainty": 0.9999999915484485
+      },
+      {
+        "segment": "PUMP_id_00_00000288_f180",
+        "uncertainty": 0.9999999872328742
+      },
+      {
+        "segment": "PUMP_id_00_00000903_f135",
+        "uncertainty": 0.9999999833096249
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 2,
+    "round": 2,
+    "n_labelled": 12912,
+    "frac_labelled": 0.3000348553502963,
+    "n_unlabelled": 30123,
+    "val_f1": 0.3441196938065414,
+    "thr": 0.14592064917087555,
+    "target_f1": 0.8,
+    "decision": "Request 4304 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_00_00000234_f120",
+        "uncertainty": 0.9999999875737702
+      },
+      {
+        "segment": "PUMP_id_00_00000600_f30",
+        "uncertainty": 0.9999999773790907
+      },
+      {
+        "segment": "PUMP_id_02_00000047_f255",
+        "uncertainty": 0.9999997286464374
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 2,
+    "round": 3,
+    "n_labelled": 17216,
+    "frac_labelled": 0.40004647380039504,
+    "n_unlabelled": 25819,
+    "val_f1": 0.29098314288946714,
+    "thr": 0.09704632312059402,
+    "target_f1": 0.8,
+    "decision": "Request 4302 additional segment annotations",
+    "selection_method": "Highest model uncertainty (entropy)",
+    "candidates": [
+      {
+        "segment": "PUMP_id_02_00000255_f150",
+        "uncertainty": 0.9999999989105685
+      },
+      {
+        "segment": "PUMP_id_00_00000581_f210",
+        "uncertainty": 0.9999999628770635
+      },
+      {
+        "segment": "PUMP_id_00_00000460_f0",
+        "uncertainty": 0.9999999453235032
+      }
+    ]
+  },
+  {
+    "strategy": "uncertainty",
+    "seed": 2,
+    "round": 4,
+    "n_labelled": 21518,
+    "frac_labelled": 0.5000116184500988,
+    "n_unlabelled": 21517,
+    "val_f1": 0.2533136966126657,
+    "thr": 0.07592779397964478,
+    "target_f1": 0.8,
+    "decision": "STOP: annotation budget exhausted",
+    "selection_method": "Highest model uncertainty (entropy)"
+  }
+]
