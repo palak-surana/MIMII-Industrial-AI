@@ -1,104 +1,235 @@
-# CNN-LSTM Machine Fault Detection with an Agentic Active-Learning Annotation Agent (MIMII)
+# MIMII Industrial AI – Machine Fault Detection Using CNN-LSTM and Agentic Active Learning
 
-Does uncertainty-based active learning, run by a small multi-agent loop, reach the same cross-machine F1
-with fewer labelled segments than random labelling?
+An AI-powered industrial machine fault detection system using the **MIMII Sound Dataset**, CNN-LSTM deep learning, and an Agentic Active Learning framework.
 
-```
-src/config.py          all settings (every field is a --flag)          src/agents.py     the 4 agents + Coordinator
-src/features.py        band-pass + log-Mel                              src/active_learning.py  LabelPool, entropy, random/uncertainty
-src/preprocess.py      Phase 2  WAV -> windows                          src/analysis.py   tables, target-F1, saving, t-test, plots
-src/data.py            Phase 3  machine-wise split                      src/run_experiments.py  Experiments 1-6
-src/eda.py             Phase 1  required EDA                            src/run_agent_demo.py   one full agent run + logs
-src/model.py/trainer.py CNN-LSTM + training                             src/xai.py        Integrated Gradients
-src/baseline.py        Random-Forest comparison                         dashboard/app.py  Streamlit dashboard
-tools/make_synthetic_mimii.py  fake data for smoke tests                tests/test_logic.py  logic tests (no torch needed)
-```
+The project investigates whether uncertainty-based active learning, managed by a multi-agent system, can achieve cross-machine fault detection performance with fewer labelled audio segments than random sampling.
 
-## Step 0 - Setup
-```bash
-python -m venv .venv && source .venv/bin/activate      # Windows: .venv\Scripts\activate
-pip install -r requirements.txt                         # install a CUDA build of torch if you have a GPU
-```
+## 🚀 Live Project
 
-## Step 1 - Get MIMII (Week 1)
-Download from https://zenodo.org/records/3384388 (start with `6_dB_pump.zip`; later `6_dB_fan.zip`, `6_dB_valve.zip`,
-`6_dB_slider.zip`). Unzip into `data/mimii/` so that this path exists:
-`data/mimii/6_dB_pump/pump/id_00/normal/00000000.wav`  (also `abnormal/`; ids 00, 02, 04, 06).
-MIMII's slide rail folder is called `slider`, so use `--machines slider`.
+- **Live Dashboard:** https://mimii-industrial-ai.onrender.com
+- **GitHub Repository:** https://github.com/palak-surana/MIMII-Industrial-AI
 
-Optional smoke test with fake data (no download):
-`python tools/make_synthetic_mimii.py --out data/synthetic` then add `--data_root data/synthetic --processed_dir data/proc_syn` to every command.
+> Note: The dashboard is deployed on Render. Model availability depends on successful loading of the trained checkpoint and Mel filterbank files.
 
-## Step 2 - Preprocess (Week 2)
-```bash
-python -m src.preprocess --machines pump            # builds 1 s and 2 s windows, 64 Mel, 1024 FFT, hop 512, 50 % overlap
-python -m src.eda --machines pump                    # all required EDA plots/tables -> results/eda/
-```
-Channel 0 is used by default (`--channel -1` averages all 8). Split (fixed, Phase 3):
-train = id_00, id_02 | validation = id_04 | test = unseen id_06. Change with `--train_ids ... --val_ids ... --test_ids ...`.
-Use `--machines pump fan` to pool several machine types.
+## 🎯 Project Objectives
 
-## Step 3 - Model, window size, supervised reference (Weeks 3-4; Experiments 1 and 2)
-```bash
-python -m src.run_experiments --stage exp1
-```
-Trains the CNN-LSTM on 100 % of the training pool for 1 s and 2 s windows, prints val/test metrics (Accuracy, Precision,
-Recall/Sensitivity, Specificity, F1, AUROC, false alarms per operating hour) next to a Random-Forest baseline, and tells you the better
-window. Use it for everything after: `--window_secs 1.0` (or 2.0).
+- Detect abnormal machine operating conditions using machine sound recordings.
+- Extract audio features using band-pass filtering and Log-Mel spectrograms.
+- Train a CNN-LSTM model for machine fault detection.
+- Compare random sampling with uncertainty-based active learning.
+- Implement a multi-agent framework to coordinate active learning.
+- Evaluate model performance using machine-wise train, validation, and test splits.
+- Visualize experiment results and model predictions through a web dashboard.
 
-## Step 4 - Random vs agentic active learning (Weeks 5-7; Experiments 3, 4)
-```bash
-python -m src.run_experiments --stage curves --window_secs 1.0 --seeds 0 1 2
-```
-For every seed, both strategies start from the SAME stratified 10 % labelled seed set, request 5 % of the pool per
-round and stop at the 50 % budget; the CNN-LSTM is retrained from scratch each round. The hidden labels are released only
-through `LabelPool.annotate()` (the simulated engineer). CPU too slow? add `--pool_cap 8000 --epochs 8`.
+## 🧠 Technologies Used
 
-## Step 5 - Analysis (Experiments 5, 6, annotation saving)
-```bash
-python -m src.run_experiments --stage analysis --window_secs 1.0 --target_f1 0.80
-```
-Writes `results/table_f1.csv` (the 10-50 % table), `f1_curve.png` (the main graph), `summary.json` (labels needed
-for the target, **annotation saving %**, paired t-tests), `exp6_final_cross_machine.csv`.
-Choose the target F1 BEFORE looking at the curves (the assignment says so), e.g. from the fully-supervised F1 of Step 3.
-
-## Step 6 - Agent demo, XAI, dashboard (Weeks 6-8)
-```bash
-python -m src.run_agent_demo --window_secs 1.0 --target_f1 0.80      # prints the decision block each round; saves log + model
-python -m src.xai --model results/models/agent_final.pt              # Integrated Gradients on the most confident faulty test window
-streamlit run dashboard/app.py -- --window_secs 1.0
-```
-
-## Design decisions to mention in the report / viva
-* **Machine-wise split** prevents window leakage; test machine is never used for training or selection.
-* **Labels are clip-level**: every window of an abnormal clip is labelled faulty, so some windows may be quiet. State it as a limitation.
-* **Validation set**: the fully labelled validation machine is used for model selection and for the agent's stop rule (as the brief specifies); in a real plant it would also cost annotation. Say so.
-* **Fairness**: same seed set, same model seeds, same retraining recipe for both strategies; only the selection rule differs.
-* **Class imbalance**: positive-class weight in the loss; F1 on the faulty class is the headline metric.
-* **Uncertainty = binary entropy** (max at P=0.5). Optional extension: cluster CNN-LSTM embeddings with K-means and pick uncertain samples per cluster (not included).
-* Report whatever you measure: if active learning does not beat random with your data/seeds, that is a valid finding; more seeds and a lower initial fraction usually clarify it.
-
-## Task / deliverable map
-| Brief item | Where |
+| Category | Technologies |
 |---|---|
-| EDA | `src/eda.py` -> `results/eda/` |
-| Preprocessing, split documentation | `src/preprocess.py`, `src/data.py` (`describe_split`) |
-| CNN-LSTM, metrics | `src/model.py`, `src/trainer.py`, `src/metrics.py` |
-| Random baseline / uncertainty AL | `src/active_learning.py`, `Coordinator(strategy=...)` |
-| Agentic framework | `src/agents.py`, `results/agent_log.json` |
-| Budget table, target F1, saving | `src/analysis.py` -> `results/summary.json` |
-| XAI, dashboard | `src/xai.py`, `dashboard/app.py` |
-| RQ1 | Exp 1/2 (`exp1_windows.json`) | RQ2 | F1 vs % labelled | RQ3 | `table_f1.csv`, `f1_curve.png`, t-tests |
-| RQ4 | labels to target (`summary.json`) | RQ5 | test-machine F1 (Exp 6) | RQ6 | agent log + dashboard |
+| Programming | Python |
+| Deep Learning | PyTorch, CNN-LSTM |
+| Audio Processing | NumPy, SciPy, Log-Mel Spectrogram |
+| Machine Learning | Scikit-learn |
+| Active Learning | Random Sampling, Uncertainty Sampling |
+| Agentic AI | Multi-Agent Framework |
+| Explainable AI | Integrated Gradients |
+| Web Development | Flask, HTML, CSS, JavaScript |
+| Deployment | Gunicorn, Render |
+| Version Control | Git, GitHub |
 
-Suggested split of work: S1 preprocess/EDA, S2 model/metrics/exp1, S3 active_learning/analysis, S4 agents/dashboard/integration.
+## 🏗️ Project Architecture
 
-## Dashboard in Colab / Jupyter (no Streamlit needed)
-```python
-import sys; sys.path.insert(0, "/content/mimii_al")
-from dashboard.colab_dashboard import launch
-ui = launch(results_dir=f"{R}/v2", processed_dir=P, data_root="/content/mimii_al/data/mimii", window_secs=2.0, v1_dir=R)
+1. **Audio Data Collection:** Machine sound recordings are obtained from the MIMII dataset.
+2. **Preprocessing:** Audio signals are filtered and converted into Log-Mel spectrogram features.
+3. **Data Splitting:** Machine-wise splitting is performed to prevent data leakage.
+4. **Model Training:** CNN-LSTM learns patterns from machine audio features.
+5. **Active Learning:** Random and uncertainty-based strategies select samples for annotation.
+6. **Agentic Framework:** Multiple agents coordinate sample selection and annotation decisions.
+7. **Evaluation:** Model performance is evaluated using classification metrics.
+8. **Dashboard:** Users can interact with the deployed Flask application for audio analysis.
+
+## 📁 Project Structure
+
+```text
+MIMII-Industrial-AI/
+│
+├── dashboard/
+│   ├── app.py
+│   ├── templates/
+│   │   └── index.html
+│   ├── static/
+│   │   ├── style.css
+│   │   └── script.js
+│   └── uploads/
+│
+├── data/
+│   └── processed/
+│       └── mel.npz
+│
+├── results/
+│   ├── active_learning_final/
+│   ├── models/
+│   └── experiment results
+│
+├── src/
+│   ├── config.py
+│   ├── features.py
+│   ├── preprocess.py
+│   ├── data.py
+│   ├── model.py
+│   ├── trainer.py
+│   ├── agents.py
+│   ├── active_learning.py
+│   ├── analysis.py
+│   ├── run_experiments.py
+│   ├── run_agent_demo.py
+│   ├── baseline.py
+│   ├── metrics.py
+│   └── xai.py
+│
+├── tests/
+├── tools/
+├── requirements.txt
+├── .gitignore
+└── README.md
 ```
-Tabs: results (curves, tables, paired tests, supervised reference), agent decisions (round slider), segment inspector
-(spectrogram, waveform if raw audio is present, prediction, uncertainty, annotation status, Integrated Gradients).
-The Streamlit version (`dashboard/app.py`) is kept for machines where Streamlit can run.
+
+## ⚙️ Installation and Setup
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/palak-surana/MIMII-Industrial-AI.git
+
+cd MIMII-Industrial-AI
+```
+
+### Step 2: Create a Virtual Environment
+
+```bash
+python -m venv .venv
+```
+
+Activate it on Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+### Step 3: Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+Install a compatible PyTorch build depending on your hardware if required.
+
+### Step 4: Prepare the Dataset
+
+Download the MIMII dataset:
+
+https://zenodo.org/records/3384388
+
+Extract the required machine audio recordings into the `data/mimii/` directory.
+
+### Step 5: Run the Flask Dashboard Locally
+
+```bash
+python -m dashboard.app
+```
+
+Open your browser:
+
+http://127.0.0.1:5000
+
+## 🔬 Experimental Workflow
+
+### Experiment 1: Data Preprocessing and EDA
+
+- Audio preprocessing
+- Feature extraction
+- Log-Mel spectrogram generation
+- Exploratory Data Analysis
+
+### Experiment 2: CNN-LSTM Model
+
+- Train the CNN-LSTM architecture.
+- Evaluate machine fault classification.
+- Compare different audio window sizes.
+
+### Experiment 3: Active Learning
+
+Compare:
+- Random Sampling
+- Uncertainty-Based Sampling
+
+Both strategies use the same initial labelled set and annotation budget.
+
+### Experiment 4: Agentic Active Learning
+
+A multi-agent system coordinates the active learning workflow, including sample selection and annotation decisions.
+
+### Experiment 5: Model Evaluation
+
+Evaluate using:
+
+- Accuracy
+- Precision
+- Recall
+- Specificity
+- F1-Score
+- AUROC
+
+### Experiment 6: Explainable AI
+
+Integrated Gradients is used to understand which input features influence model predictions.
+
+## 📊 Evaluation and Research Focus
+
+The main research question is:
+
+**Does uncertainty-based active learning, managed by a multi-agent framework, achieve comparable cross-machine fault detection performance with fewer labelled audio segments than random sampling?**
+
+The experiments compare performance at different annotation budgets.
+
+The project reports measured results rather than assuming that uncertainty-based sampling always outperforms random sampling.
+
+## 🌐 Web Dashboard
+
+The Flask dashboard provides:
+
+- Machine health monitoring
+- Audio recording upload
+- Audio preprocessing
+- CNN-LSTM fault prediction
+- Prediction probabilities
+- Fault monitoring
+- Analysis history
+- Analysis report downloads
+
+The application is deployed using Render and Gunicorn.
+
+**Live Website:** https://mimii-industrial-ai.onrender.com
+
+## ⚠️ Limitations
+
+- The model is evaluated on the selected MIMII machine categories and experimental setup.
+- Clip-level labels may not represent every individual audio window correctly.
+- The validation machine is used for model selection and the active learning stopping rule.
+- Real industrial deployment requires testing with additional machines and operating environments.
+- Active learning performance depends on the dataset, initial labelled samples, and experimental settings.
+
+## 👩‍💻 Author
+
+**Palak Surana**
+
+B.Tech – Data Science
+
+MIT Academy of Engineering (MITAOE)
+
+GitHub: https://github.com/palak-surana
+
+---
+
+## 📜 License
+
+This project is intended for academic and research purposes.
